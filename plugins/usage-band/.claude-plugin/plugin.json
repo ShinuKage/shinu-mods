@@ -1,0 +1,10 @@
+{
+  "name": "usage-band",
+  "version": "0.1.0",
+  "description": "A band above the prompt: 5h/weekly limits, context fill, prompt-cache countdown with reheat, threshold alerts and session cost.",
+  "author": {
+    "name": "ShinuKage"
+  },
+  "license": "MIT",
+  "types": "./types/index.d.ts"
+}

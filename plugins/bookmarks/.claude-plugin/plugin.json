@@ -1,0 +1,10 @@
+{
+  "name": "bookmarks",
+  "version": "0.1.0",
+  "description": "Bookmark points in a session with /bookmark and browse them in a pane with /bookmarks",
+  "author": {
+    "name": "ShinuKage"
+  },
+  "license": "MIT",
+  "types": "./types/index.d.ts"
+}

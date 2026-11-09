@@ -1,0 +1,22 @@
+{
+  "name": "shinu-mods",
+  "owner": { "name": "ShinuKage" },
+  "description": "Orange-accented Claude Code mods: usage band, turn timer, bookmarks.",
+  "plugins": [
+    {
+      "name": "usage-band",
+      "source": "./plugins/usage-band",
+      "description": "A band above the prompt: 5h/weekly limits, context fill, prompt-cache countdown with reheat, threshold alerts and session tokens."
+    },
+    {
+      "name": "turn-timer",
+      "source": "./plugins/turn-timer",
+      "description": "Status line timer for the running turn: elapsed time and tool calls, then last-turn and session totals."
+    },
+    {
+      "name": "bookmarks",
+      "source": "./plugins/bookmarks",
+      "description": "Bookmark points in a session with /bookmark and browse them in a pane with /bookmarks."
+    }
+  ]
+}

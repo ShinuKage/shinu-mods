@@ -1,0 +1,10 @@
+{
+  "name": "turn-timer",
+  "version": "0.1.0",
+  "description": "Status line timer for the running turn: elapsed time and tool calls, then last-turn and session totals.",
+  "author": {
+    "name": "ShinuKage"
+  },
+  "license": "MIT",
+  "types": "./types/index.d.ts"
+}
