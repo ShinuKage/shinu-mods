@@ -1,7 +1,7 @@
 {
   "name": "shinu-mods",
   "owner": { "name": "ShinuKage" },
-  "description": "Orange-accented Claude Code mods: usage band, turn timer, bookmarks.",
+  "description": "Orange-accented Claude Code mods: usage band, turn timer, bookmarks, message token footer.",
   "plugins": [
     {
       "name": "usage-band",
@@ -17,6 +17,11 @@
       "name": "bookmarks",
       "source": "./plugins/bookmarks",
       "description": "Bookmark points in a session with /bookmark and browse them in a pane with /bookmarks."
+    },
+    {
+      "name": "message-cost",
+      "source": "./plugins/message-cost",
+      "description": "A dim footer under each assistant message: tokens in and out, how many came from the prompt cache, and cache writes."
     }
   ]
 }

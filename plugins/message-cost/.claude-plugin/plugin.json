@@ -1,0 +1,10 @@
+{
+  "name": "message-cost",
+  "version": "0.2.0",
+  "description": "A dim footer under each assistant message: tokens in and out, how many came from the prompt cache, and cache writes.",
+  "author": {
+    "name": "ShinuKage"
+  },
+  "license": "MIT",
+  "types": "./types/index.d.ts"
+}

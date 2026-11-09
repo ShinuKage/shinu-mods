@@ -7,6 +7,7 @@ Mods for [Claude Code](https://claude.com/claude-code), with an orange accent th
 | [`usage-band`](plugins/usage-band) | A two-row band above the prompt. Row 1: 5h limit, weekly limit and context fill, each with a bar and reset countdown. Row 2: prompt-cache warm/cold countdown, a ↻ reheat button, optional auto-reheat, and the session's token totals. Toasts when a limit or the context passes 80% and 90%. |
 | [`turn-timer`](plugins/turn-timer) | A status line timer: `⏱ 1m 24s · 7 tools` while a turn runs, then last-turn and session totals. Toast for turns of 10 minutes or more. |
 | [`bookmarks`](plugins/bookmarks) | `/bookmark [note]` saves the current point in a session; `/bookmarks` opens a pane to search, jump to, copy and delete them. |
+| [`message-cost`](plugins/message-cost) | One dim footer at the end of each answer, summing every API call in it: `12.4k in · 820 out · 10.9k cached (88%) · 400 written`. Display only: the footer is never sent to the model. |
 
 ## Install
 
@@ -18,6 +19,7 @@ At the prompt of a Claude Code terminal session, one line per mod:
 /plugin install usage-band --marketplace ShinuKage/shinu-mods
 /plugin install turn-timer --marketplace ShinuKage/shinu-mods
 /plugin install bookmarks --marketplace ShinuKage/shinu-mods
+/plugin install message-cost --marketplace ShinuKage/shinu-mods
 ```
 
 Answer `y` to add the marketplace, then press Enter to install at the user scope (every session).
