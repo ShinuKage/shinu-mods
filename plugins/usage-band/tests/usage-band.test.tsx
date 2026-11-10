@@ -119,10 +119,11 @@ test('bars are capped inside their column', async () => {
   expect(barPx(36)).toBe(198)
   expect(barPx(200)).toBe(220)
   expect(barTextCells(36)).toBe(34)
-  const svg = barSvg(50, 100, '#F97316')
-  expect(svg).toContain('width="50"')
+  const svg = barSvg(50, '#F97316')
+  expect(svg).toContain('width="100%"')
+  expect(svg).toContain('width="50%"')
   expect(svg).toContain('height="5"')
-  expect(barSvg(0, 100, '#F97316')).not.toContain('#F97316')
+  expect(barSvg(0, '#F97316')).not.toContain('#F97316')
 })
 
 test('countdowns read naturally', async () => {

@@ -13,7 +13,6 @@ import {
   LIMIT_LABEL,
   ORANGE,
   barCells,
-  barPx,
   barSvg,
   barTextCells,
   cacheState,
@@ -304,8 +303,7 @@ export const register: Register = on => {
         )
       } else {
         const { Svg } = $.ui.resolve(e)
-        const px = barPx(meterW)
-        bar = <Svg source={barSvg(percent, px, color)} alt={alt} width={px} height={5} />
+        bar = <Svg source={barSvg(percent, color)} alt={alt} height={5} />
       }
       return (
         <Box key={id} flexDirection="column" width={meterW} flexShrink={1}>

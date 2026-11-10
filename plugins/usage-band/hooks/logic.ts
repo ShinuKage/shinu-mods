@@ -142,15 +142,18 @@ export function barTextCells(cells: number): number {
   return Math.max(4, Math.min(40, cells - 2))
 }
 
-/** A slim rounded bar: a faint track and the colored fill. */
-export function barSvg(percent: number | undefined, widthPx: number, color: string, heightPx = 5): string {
+/**
+ * A slim rounded bar as wide as its section: a faint track and the colored
+ * fill, in percentages of the drawn width (no viewBox, so the ends stay round).
+ */
+export function barSvg(percent: number | undefined, color: string, heightPx = 5): string {
   const p = Math.min(100, Math.max(0, percent ?? 0))
   const r = heightPx / 2
-  const fill = p > 0 ? Math.max(heightPx, Math.round((p / 100) * widthPx)) : 0
+  const fill = p > 0 ? Math.max(1.5, Math.round(p * 10) / 10) : 0
   return (
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${widthPx}" height="${heightPx}" viewBox="0 0 ${widthPx} ${heightPx}">` +
-    `<rect x="0" y="0" width="${widthPx}" height="${heightPx}" rx="${r}" fill="#9CA3AF" fill-opacity="0.28"/>` +
-    (fill > 0 ? `<rect x="0" y="0" width="${fill}" height="${heightPx}" rx="${r}" fill="${color}"/>` : '') +
+    `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="${heightPx}" preserveAspectRatio="none">` +
+    `<rect x="0" y="0" width="100%" height="${heightPx}" rx="${r}" fill="#9CA3AF" fill-opacity="0.28"/>` +
+    (fill > 0 ? `<rect x="0" y="0" width="${fill}%" height="${heightPx}" rx="${r}" fill="${color}"/>` : '') +
     `</svg>`
   )
 }
