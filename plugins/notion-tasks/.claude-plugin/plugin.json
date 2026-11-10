@@ -1,0 +1,30 @@
+{
+  "name": "notion-tasks",
+  "version": "0.2.0",
+  "description": "A /board pane of your Notion tasks (one click hands a task to Claude) and /devlog to post a session devlog to Notion",
+  "author": {
+    "name": "ShinuKage"
+  },
+  "license": "MIT",
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "dataSource": {
+      "type": "string",
+      "title": "Notion tasks data source",
+      "description": "The collection:// URL of the Notion database that holds your tasks (find it with notion-search, or open the database and copy its data source URL).",
+      "default": ""
+    },
+    "writeBack": {
+      "type": "boolean",
+      "title": "Write status back to Notion",
+      "description": "Starting a task sets Status to In progress; the Done button sets it to Done. Off: the pane never writes to Notion.",
+      "default": true
+    },
+    "devlogPage": {
+      "type": "string",
+      "title": "Notion devlog page",
+      "description": "Page id or URL of the Notion page that /devlog appends entries to.",
+      "default": ""
+    }
+  }
+}

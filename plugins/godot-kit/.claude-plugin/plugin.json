@@ -1,0 +1,30 @@
+{
+  "name": "godot-kit",
+  "version": "0.1.0",
+  "description": "Godot helpers for Claude Code: checks GDScript with Godot after every .gd edit, shows the result in the status line and feeds errors back to Claude.",
+  "author": {
+    "name": "ShinuKage"
+  },
+  "license": "MIT",
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "godotPath": {
+      "type": "string",
+      "title": "Godot executable",
+      "description": "Full path to the Godot executable (the _console.exe build on Windows). Empty: auto-detect.",
+      "default": ""
+    },
+    "projectPath": {
+      "type": "string",
+      "title": "Godot project folder",
+      "description": "Only check scripts inside this project. Empty: any folder that holds project.godot.",
+      "default": ""
+    },
+    "checkTimeoutSec": {
+      "type": "number",
+      "title": "Script check timeout (seconds)",
+      "description": "How long one Godot check may run before it is abandoned.",
+      "default": 20
+    }
+  }
+}

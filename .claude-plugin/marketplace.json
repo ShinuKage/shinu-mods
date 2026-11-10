@@ -1,7 +1,7 @@
 {
   "name": "shinu-mods",
   "owner": { "name": "ShinuKage" },
-  "description": "Orange-accented Claude Code mods: usage band, turn timer, bookmarks, message token footer.",
+  "description": "Orange-accented Claude Code mods: usage band, turn timer, bookmarks, message token footer, Godot kit, Notion tasks and devlog.",
   "plugins": [
     {
       "name": "usage-band",
@@ -22,6 +22,16 @@
       "name": "message-cost",
       "source": "./plugins/message-cost",
       "description": "A dim footer under each assistant message: tokens in and out, how many came from the prompt cache, and cache writes."
+    },
+    {
+      "name": "godot-kit",
+      "source": "./plugins/godot-kit",
+      "description": "Godot 4 helpers: a GDScript check after every .gd edit, a /play run panel Claude can read, and a /scene tree viewer that marks what Claude's edits changed."
+    },
+    {
+      "name": "notion-tasks",
+      "source": "./plugins/notion-tasks",
+      "description": "A /board pane of your Notion tasks (▶ hands one to Claude, ✓ marks it done) and /devlog, which posts a session devlog to Notion only on Post."
     }
   ]
 }
