@@ -2,7 +2,7 @@ import { expect, mock, test } from 'claude-code/testing'
 import type { ModelCompleteResult, On, SessionMessage } from 'claude-code'
 import type { Engine } from 'claude-code/testing'
 
-import { digest, entryMarkdown, extras, filesTouched, startIndex } from '../hooks/devlog'
+import { digest, entryHeading, entryMarkdown, extras, filesTouched, splitTitle, startIndex } from '../hooks/devlog'
 
 const PANE = {
   plugin: 'notion-tasks',
@@ -20,7 +20,7 @@ const PANE = {
 
 const PAGE = 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'
 const OPTS = { options: { devlogPage: PAGE } }
-const MODEL_TEXT = 'Built the enemy spawner.\n\n**Done**\n- Added spawner scene\n\n**Open problems**\n- None'
+const MODEL_TEXT = 'Title: Enemy spawner basics\nBuilt the enemy spawner.\n\n**Done**\n- Added spawner scene\n\n**Open problems**\n- None'
 
 function msgs(n: number): SessionMessage[] {
   const out: SessionMessage[] = []
@@ -97,7 +97,11 @@ test('files, tasks and note are written by the mod, with task links', async () =
   expect(x).not.toContain('Started: [Spawner]')
   expect(x).toContain('**Note**\nfelt good')
   expect(digest(msgs(1))).toContain('tool Edit C:\\game\\src\\file0.gd')
-  expect(entryMarkdown('body', Date.UTC(2026, 10, 10, 12, 30))).toMatch(/^## 2026-11-10 \d\d:30\nbody\n$/)
+  const at = Date.UTC(2026, 10, 10, 12, 30)
+  expect(entryHeading('Enemy spawner basics', at)).toBe('10/11/26 || Enemy spawner basics')
+  expect(entryMarkdown('Tiny', 'body', at)).toBe('<toggle heading="h2">\n10/11/26 || Tiny\n\nbody\n</toggle>\n')
+  expect(splitTitle('**Title:** Spawner work.\nRest')).toEqual({ title: 'Spawner work', rest: 'Rest' })
+  expect(splitTitle('No title here')).toEqual({ title: '', rest: 'No title here' })
 })
 
 // ---------- the pane ----------
@@ -113,6 +117,8 @@ test('/devlog drafts and shows Post, Edit, Cancel, posting nothing', OPTS, async
   for (const surface of ['terminal', 'desktop'] as const) {
     const ui = await $.ui.mount({ ...PANE, surface })
     expect(await ui.find({ type: 'Text', text: 'Built the enemy spawner.' })).toBeDefined()
+    expect(await ui.find({ type: 'Text', text: /10\/11\/26 \|\| Enemy spawner basics/ })).toBeDefined()
+    expect(await ui.find({ type: 'Text', text: /^Title:/ })).toBeUndefined()
     expect(await ui.find({ type: 'Text', text: 'spawner works' })).toBeDefined()
     expect(await ui.find({ type: 'Button', key: 'post' })).toBeDefined()
     expect(await ui.find({ type: 'Button', key: 'edit' })).toBeDefined()
@@ -141,6 +147,7 @@ test('Edit changes the text that Post sends', OPTS, async ($, on) => {
   await devlog($)
   const ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
   await ui.press({ key: 'edit' })
+  await ui.input({ key: 'draft-title', text: 'Renamed', kind: 'change' })
   await ui.input({ key: 'draft-text', text: 'My own words.' })
   expect(m.appends).toHaveLength(0)
   await ui.press({ key: 'post' })
@@ -148,7 +155,7 @@ test('Edit changes the text that Post sends', OPTS, async ($, on) => {
   expect(m.appends[0]).toEqual({
     page_id: PAGE,
     command: 'insert_content',
-    content: expect.stringMatching(/^## 2026-11-10 \d\d:30\nMy own words\.\n$/),
+    content: '<toggle heading="h2">\n10/11/26 || Renamed\n\nMy own words.\n</toggle>\n',
     position: { type: 'end' },
   })
   expect(await ui.find({ type: 'Text', text: /Posted to the Notion devlog/ })).toBeDefined()

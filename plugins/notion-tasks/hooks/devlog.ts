@@ -114,6 +114,7 @@ export function digest(messages: readonly SessionMessage[], maxChars = 12000): s
 export const DRAFT_SYSTEM =
   'You write short game-dev devlog entries from a coding session transcript. ' +
   'Output Markdown only, exactly this shape and nothing else:\n' +
+  'Title: a tiny title for the session, 3 to 6 words, no trailing period\n' +
   'One plain sentence summarizing the session.\n\n' +
   '**Done**\n- bullet\n\n**Open problems**\n- bullet (or "- None")\n\n' +
   'At most 6 Done bullets, terse, past tense, concrete. No headings, no file list, no preamble.'
@@ -148,9 +149,27 @@ function pad(n: number): string {
   return String(n).padStart(2, '0')
 }
 
-/** `## 2026-11-10 14:32` in local time, then the body: one heading per entry. */
-export function entryMarkdown(body: string, at: number): string {
+/** Splits the model's `Title: …` first line off its reply. */
+export function splitTitle(modelText: string): { title: string; rest: string } {
+  const text = modelText.trim()
+  const m = /^\**title\**\s*:\s*(.+)\n?/i.exec(text)
+  if (m?.[1] === undefined) return { title: '', rest: text }
+  return { title: m[1].replace(/\*+/g, '').trim().replace(/\.$/, ''), rest: text.slice(m[0].length).trim() }
+}
+
+/** `10/11/26` (DD/MM/YY, local time). */
+export function shortDate(at: number): string {
   const d = new Date(at)
-  const stamp = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`
-  return `## ${stamp}\n${body.trim()}\n`
+  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${pad(d.getFullYear() % 100)}`
+}
+
+/** The heading line: `DD/MM/YY || tiny title`. */
+export function entryHeading(title: string, at: number): string {
+  const t = title.replace(/\s+/g, ' ').trim()
+  return t === '' ? shortDate(at) : `${shortDate(at)} || ${t}`
+}
+
+/** One entry as a collapsible h2 toggle holding the body. */
+export function entryMarkdown(title: string, body: string, at: number): string {
+  return `<toggle heading="h2">\n${entryHeading(title, at)}\n\n${body.trim()}\n</toggle>\n`
 }

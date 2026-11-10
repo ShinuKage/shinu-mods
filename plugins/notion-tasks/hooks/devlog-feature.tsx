@@ -9,12 +9,14 @@ import {
   digest,
   draftPrompt,
   entryBody,
+  entryHeading,
   entryMarkdown,
   extras,
   filesTouched,
   loadEvents,
   loadLast,
   saveLast,
+  splitTitle,
   startIndex,
 } from './devlog'
 import { appendToPage } from './notion'
@@ -33,6 +35,7 @@ const GREEN = '#22C55E'
 
 const IDLE: Draft = {
   status: 'idle',
+  title: '',
   body: '',
   error: '',
   project: '',
@@ -41,7 +44,7 @@ const IDLE: Draft = {
   postedUrl: '',
 }
 
-const draftAtom = atom({ plugin: 'notion-tasks', key: 'draft' } as const, IDLE, { shape: 'draft-1' })
+const draftAtom = atom({ plugin: 'notion-tasks', key: 'draft' } as const, IDLE, { shape: 'draft-2' })
 
 export type DevlogConfig = { devlogPage: string }
 
@@ -75,6 +78,7 @@ export async function makeDraft($: $, note: string): Promise<void> {
   }
 
   let summary = ''
+  let title = ''
   if (hasWork(since)) {
     const r = await $.model
       .complete({ model: DRAFT_MODEL, system: DRAFT_SYSTEM, prompt: draftPrompt(digest(since)), maxTokens: 700 })
@@ -83,10 +87,13 @@ export async function makeDraft($: $, note: string): Promise<void> {
       await update($, draftAtom, () => ({ ...base, status: 'error', error: `Couldn't write the draft: ${String(r.reason)}` }))
       return
     }
-    summary = r.text
+    const split = splitTitle(r.text)
+    title = split.title
+    summary = split.rest
   }
+  if (title === '') title = note.trim() !== '' ? note.trim().split(/\s+/).slice(0, 6).join(' ') : 'Board updates'
   const body = entryBody(summary, extras(filesTouched(since), events, note))
-  await update($, draftAtom, () => ({ ...base, status: 'ready', body }))
+  await update($, draftAtom, () => ({ ...base, status: 'ready', title, body }))
 }
 
 /** Post: the only path to Notion. Moves the "since last" point on success. */
@@ -99,7 +106,7 @@ export async function postDraft($: $, cfg: DevlogConfig): Promise<void> {
   }
   await update($, draftAtom, (d): Draft => ({ ...d, status: 'posting', error: '' }))
   const now = await $.clock.now()
-  const w = await appendToPage($, cfg.devlogPage, entryMarkdown(draft.body, now))
+  const w = await appendToPage($, cfg.devlogPage, entryMarkdown(draft.title, draft.body, now))
   if (!w.ok) {
     await update($, draftAtom, (d): Draft => ({ ...d, status: 'ready', error: `Not posted: ${w.error}` }))
     return
@@ -121,6 +128,7 @@ export function devlogHooks(on: On, cfg: DevlogConfig): void {
     const { Box, Text, Button } = els
     const Input = 'Input' in els ? els.Input : undefined
     const d = await read($, draftAtom)
+    const now = await $.clock.now().catch(() => 0)
     const set = (fn: (x: Draft) => Draft) => update($, draftAtom, fn)
 
     const header = (
@@ -188,7 +196,18 @@ export function devlogHooks(on: On, cfg: DevlogConfig): void {
         )}
         {isEditing ? (
           <Input
+            key="draft-title"
+            label="Title"
+            value={d.title}
+            submitLabel="save"
+            onInput={(value: string) => void set((x): Draft => ({ ...x, title: value }))}
+            onSubmit={(value: string) => void set((x): Draft => ({ ...x, title: value }))}
+          />
+        ) : null}
+        {isEditing ? (
+          <Input
             key="draft-text"
+            label="Entry"
             rows={14}
             value={d.body}
             submitLabel="save"
@@ -203,6 +222,10 @@ export function devlogHooks(on: On, cfg: DevlogConfig): void {
             borderColor={ORANGE_SOFT}
             paddingX={1}
           >
+            <Text color={ORANGE} bold wrap="wrap">
+              ▸ {entryHeading(d.title, now)}
+            </Text>
+            <Text> </Text>
             {d.body.split('\n').map(line => (
               <Text wrap="wrap" bold={line.startsWith('**')}>
                 {line === '' ? ' ' : line.replace(/\*\*/g, '')}

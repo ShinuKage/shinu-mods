@@ -1,6 +1,6 @@
 {
   "name": "notion-tasks",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A /board pane of your Notion tasks (one click hands a task to Claude) and /devlog to post a session devlog to Notion",
   "author": {
     "name": "ShinuKage"

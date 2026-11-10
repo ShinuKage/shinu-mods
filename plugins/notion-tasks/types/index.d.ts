@@ -23,6 +23,8 @@ export type DraftStatus = 'idle' | 'drafting' | 'ready' | 'editing' | 'posting' 
 /** The /devlog draft: nothing reaches Notion until Post. */
 export type Draft = {
   status: DraftStatus
+  /** Tiny title for the heading `DD/MM/YY || title`. */
+  title: string
   /** The entry text without its date heading. */
   body: string
   /** Why drafting or posting failed; '' when nothing failed. */
