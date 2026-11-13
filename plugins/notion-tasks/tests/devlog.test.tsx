@@ -2,7 +2,7 @@ import { expect, mock, test } from 'claude-code/testing'
 import type { ModelCompleteResult, On, SessionMessage } from 'claude-code'
 import type { Engine } from 'claude-code/testing'
 
-import { digest, entryHeading, entryMarkdown, extras, filesTouched, splitTitle, startIndex } from '../hooks/devlog'
+import { digest, entryHeading, entryMarkdown, extras, filesTouched, splitTitle, startIndex, ticketIds, withTicket } from '../hooks/devlog'
 
 const PANE = {
   plugin: 'notion-tasks',
@@ -102,6 +102,23 @@ test('files, tasks and note are written by the mod, with task links', async () =
   expect(entryMarkdown('Tiny', 'body', at)).toBe('<toggle heading="h2">\n10/11/26 || Tiny\n\nbody\n</toggle>\n')
   expect(splitTitle('**Title:** Spawner work.\nRest')).toEqual({ title: 'Spawner work', rest: 'Rest' })
   expect(splitTitle('No title here')).toEqual({ title: '', rest: 'No title here' })
+})
+
+test('the title leads with the ticket number of the task worked on', () => {
+  const ev = (title: string) => ({ at: 1, project: 'p', kind: 'started' as const, title, url: `https://n/${title}` })
+  expect(ticketIds([ev('M1-02 · Playground: floor, light, camera'), ev('M1-02 · again'), ev('M1-03 · Camera')])).toEqual(['M1-02', 'M1-03'])
+  expect(ticketIds([ev('Fix the build')])).toEqual([])
+  // the model's own ID, whatever separator it used, gets " - "
+  expect(withTicket('M1-02 - First playground scene created', [])).toBe('M1-02 - First playground scene created')
+  expect(withTicket('M1-02: First playground scene', [])).toBe('M1-02 - First playground scene')
+  expect(withTicket('M1-02 · First playground scene', [])).toBe('M1-02 - First playground scene')
+  expect(withTicket('M1-02 First playground scene', [])).toBe('M1-02 - First playground scene')
+  // /board task IDs the model left out go in front, once
+  expect(withTicket('First playground scene', ['M1-02'])).toBe('M1-02 - First playground scene')
+  expect(withTicket('M1-02 - Playground', ['M1-02', 'M1-03'])).toBe('M1-02, M1-03 - Playground')
+  // no task, no prefix
+  expect(withTicket('Board updates', [])).toBe('Board updates')
+  expect(withTicket('Tuned the LOD-2 meshes', [])).toBe('Tuned the LOD-2 meshes')
 })
 
 // ---------- the pane ----------

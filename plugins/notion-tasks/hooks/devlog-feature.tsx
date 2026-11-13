@@ -18,6 +18,8 @@ import {
   saveLast,
   splitTitle,
   startIndex,
+  ticketIds,
+  withTicket,
 } from './devlog'
 import { appendToPage } from './notion'
 
@@ -92,6 +94,7 @@ export async function makeDraft($: $, note: string): Promise<void> {
     summary = split.rest
   }
   if (title === '') title = note.trim() !== '' ? note.trim().split(/\s+/).slice(0, 6).join(' ') : 'Board updates'
+  title = withTicket(title, ticketIds(events))
   const body = entryBody(summary, extras(filesTouched(since), events, note))
   await update($, draftAtom, () => ({ ...base, status: 'ready', title, body }))
 }

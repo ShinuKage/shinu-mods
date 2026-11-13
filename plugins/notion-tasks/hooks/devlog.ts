@@ -114,7 +114,9 @@ export function digest(messages: readonly SessionMessage[], maxChars = 12000): s
 export const DRAFT_SYSTEM =
   'You write short game-dev devlog entries from a coding session transcript. ' +
   'Output Markdown only, exactly this shape and nothing else:\n' +
-  'Title: a tiny title for the session, 3 to 6 words, no trailing period\n' +
+  'Title: a tiny title for the session, 3 to 6 words, no trailing period. ' +
+  'If the session worked on a task with an ID like M1-02, start with the ID and " - ", ' +
+  'e.g. "Title: M1-02 - First playground scene created"\n' +
   'One plain sentence summarizing the session.\n\n' +
   '**Done**\n- bullet\n\n**Open problems**\n- bullet (or "- None")\n\n' +
   'At most 6 Done bullets, terse, past tense, concrete. No headings, no file list, no preamble.'
@@ -155,6 +157,29 @@ export function splitTitle(modelText: string): { title: string; rest: string } {
   const m = /^\**title\**\s*:\s*(.+)\n?/i.exec(text)
   if (m?.[1] === undefined) return { title: '', rest: text }
   return { title: m[1].replace(/\*+/g, '').trim().replace(/\.$/, ''), rest: text.slice(m[0].length).trim() }
+}
+
+const TICKET = /\b[A-Z][A-Z0-9]*-\d+\b/g
+
+/** Ticket IDs (like `M1-02`) in the titles of the /board tasks, first seen first. */
+export function ticketIds(events: readonly BoardEvent[]): string[] {
+  const ids: string[] = []
+  for (const e of events) for (const id of e.title.match(TICKET) ?? []) if (!ids.includes(id)) ids.push(id)
+  return ids
+}
+
+/**
+ * `M1-02 - rest`: a leading ticket ID gets the ` - ` separator, and the IDs of
+ * /board tasks the title is missing go in front.
+ */
+export function withTicket(title: string, ids: readonly string[]): string {
+  const t = title.replace(/\s+/g, ' ').trim()
+  const lead = /^((?:[A-Z][A-Z0-9]*-\d+)(?:\s*[,&+]\s*[A-Z][A-Z0-9]*-\d+)*)\s*(?:[:·|–—-]\s*)?(.*)$/.exec(t)
+  const have = lead?.[1] !== undefined ? (lead[1].match(TICKET) ?? []) : []
+  const rest = lead?.[1] !== undefined ? (lead[2] ?? '').trim() : t
+  const all = [...have, ...ids.filter(id => !have.includes(id))]
+  if (all.length === 0) return t
+  return rest === '' ? all.join(', ') : `${all.join(', ')} - ${rest}`
 }
 
 /** `10/11/26` (DD/MM/YY, local time). */
